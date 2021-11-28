@@ -6,3 +6,4 @@ Installed ROS, OpenAI gym
 
 1. Got the example models and copy pasted RL code to work
 2. Started from scratch and wrote PID controller for the Cartpole example
+3. Wrote my own implementation of Q learning on top of the gym and cartpole example model (wrote my own discretization, update, policy, etc)
