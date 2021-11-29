@@ -51,9 +51,9 @@ if __name__ == "__main__":
     vlim = (-10,10)
     philim = (env.observation_space.low[2], env.observation_space.high[2])
     wlim = (-5,5)
-    discrete = Discretizer((xlim,vlim,philim,wlim),(5,5,8,12))
+    discrete = Discretizer((xlim,vlim,philim,wlim),(4,8,4,8))
     model = discrete.get_zeros((2,))    
-    for t in range(6000):
+    for t in range(3000):
         learn_rate = get_rate(t, 0.001)
         explo_rate = get_rate(t, 0.001)
         done = False
@@ -72,3 +72,18 @@ if __name__ == "__main__":
             update_reward(model,expected,oldstate,action,learn_rate)
     with open(OUTFILE, 'w') as f:
         model.tofile(f)
+    # benchmark
+    rsums = []
+    for t in range(100):
+        done = False
+        rsum = 0
+        obs = env.reset()
+        newstate = discrete.map(state(*obs))
+        while not done:
+            oldstate = newstate
+            action = get_action(model, oldstate)
+            obs, reward, done, _ = env.step(action)
+            newstate = discrete.map(state(*obs))
+            rsum = rsum + reward
+        rsums.append(rsum)
+    print("Evaluated over 100 episodes: {}".format(np.average(rsums)))
