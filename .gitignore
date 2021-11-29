@@ -2,3 +2,8 @@ bin/
 .vscode/
 *pyc
 __pycache__
+gymenv/
+*bin/
+*lib/
+*share/
+*lib64/

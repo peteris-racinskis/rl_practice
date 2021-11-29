@@ -27,10 +27,13 @@ class Discretizer:
 def get_action(qmat: np.ndarray, state: tuple) -> int:
     return np.argmax(qmat[state]) # 0 or 1 with max reward
 
+# This together with the expected reward is known as the BELLMAN EQUATION
 def update_reward(qmat, expected_reward, oldstate, action, learn_rate):
     index = oldstate + (action,)
     qmat[index] = (1-learn_rate) * qmat[index] + learn_rate*expected_reward
 
+# If discount rate == 1, rewards propagate backwards directly. 
+# Set discount rate < 1 to weigh them in time
 def expected_reward(qmat, newstate, reward, discount_rate=1):
     updated = reward + discount_rate * np.max(qmat[newstate])
     return updated
@@ -53,7 +56,7 @@ if __name__ == "__main__":
     wlim = (-5,5)
     discrete = Discretizer((xlim,vlim,philim,wlim),(4,8,4,8))
     model = discrete.get_zeros((2,))    
-    for t in range(3000):
+    for t in range(4000):
         learn_rate = get_rate(t, 0.001)
         explo_rate = get_rate(t, 0.001)
         done = False
@@ -68,7 +71,7 @@ if __name__ == "__main__":
             action = randomize(env.action_space, explo_rate, get_action(model, oldstate))
             obs, reward, done, _ = env.step(action)
             newstate = discrete.map(state(*obs))
-            expected = expected_reward(model,newstate,reward)
+            expected = expected_reward(model,newstate,reward,0.98)
             update_reward(model,expected,oldstate,action,learn_rate)
     with open(OUTFILE, 'w') as f:
         model.tofile(f)
