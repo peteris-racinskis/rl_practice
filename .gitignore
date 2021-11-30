@@ -7,3 +7,5 @@ gymenv/
 *lib/
 *share/
 *lib64/
+eval-weights*
+checkpoint*
