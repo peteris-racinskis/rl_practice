@@ -49,12 +49,15 @@ def randomize(space, prob, action):
 def state(x, v, rot, omega) -> tuple:
     return (x, v, rot, omega)
 
+ACTIONS=2
+QSHAPE=(4,8,4,8)
+LIMITS = ((env.observation_space.low[0], env.observation_space.high[0]),
+            (-10,10),
+            (env.observation_space.low[2], env.observation_space.high[2]),
+            (-5,5))
+
 if __name__ == "__main__":
-    xlim = (env.observation_space.low[0], env.observation_space.high[0])
-    vlim = (-10,10)
-    philim = (env.observation_space.low[2], env.observation_space.high[2])
-    wlim = (-5,5)
-    discrete = Discretizer((xlim,vlim,philim,wlim),(4,8,4,8))
+    discrete = Discretizer(LIMITS,QSHAPE)
     model = discrete.get_zeros((2,))    
     for t in range(4000):
         learn_rate = get_rate(t, 0.001)

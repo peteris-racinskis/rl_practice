@@ -8,7 +8,6 @@ def get_action(logits: tf.Tensor) -> int:
 
 def get_state(state: np.ndarray) -> tf.Tensor:
     return tf.expand_dims(tf.constant(state, dtype=tf.float32), (0))
-    pass
 
 EPISODES = 100
 
@@ -16,15 +15,15 @@ if __name__ == "__main__":
     model = CombinedNetwork(ACTIONS, HIDDEN)
     env = gym.make("CartPole-v1")
     model.build((1,4))
-    model.load_weights('eval-weights')
+    model.load_weights('eval-weights-v1')
     for e in range(EPISODES):
         state = env.reset()
         done = False
-        rsum = 0
+        t = 0
         while not done:
             state = get_state(state)
             action = get_action(model(state)[0])
             state, reward, done, _ = env.step(action)
-            rsum = rsum + reward
+            t += 1
             env.render()
-        print(f"Died at {rsum}")
+        print(f"Died at {t}")

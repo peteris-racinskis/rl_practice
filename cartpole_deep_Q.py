@@ -16,16 +16,14 @@ class CombinedNetwork(Model):
 
     def __init__(self, actions, hidden) -> None:
         super().__init__()
-
         self.hidden1 = layers.Dense(hidden,activation=tf.nn.relu)
-        self.hidden2 = layers.Dense(hidden,activation=tf.nn.relu)
         self.action = layers.Dense(actions)
         self.reward = layers.Dense(1)
 
     # override the model call method
     def call(self, state: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         # layers should be callable and produce output tensors
-        intermediate = self.hidden2(self.hidden1(state))
+        intermediate = self.hidden1(state)
         return self.action(intermediate), self.reward(intermediate)
 
 # get output form single step, wrap inside np arrays
@@ -167,7 +165,7 @@ def training_step(start: tf.Tensor,
     return episode_reward, loss
 
 OFILE="eval-weights-v1"
-HIDDEN=24
+HIDDEN=128
 ACTIONS=2
 GAMMA=0.9
 MAX_STEPS=500
@@ -178,7 +176,7 @@ LOGLEVEL="INFO"
 EAGER=False
 MAX_EPISODES=10000
 BUF_LENGTH=100
-FINISHED=495.0
+FINISHED=250
 
 if __name__ == "__main__":
 

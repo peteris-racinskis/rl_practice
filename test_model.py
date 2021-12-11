@@ -4,7 +4,7 @@ INFILE=OUTFILE
 
 if __name__ == "__main__":
     with open(INFILE, 'r') as f:
-        model = np.fromfile(f).reshape((4,8,4,8,2))
+        model = np.fromfile(f).reshape(QSHAPE + (ACTIONS,))
     xlim = (env.observation_space.low[0], env.observation_space.high[0])
     vlim = (-10,10)
     philim = (env.observation_space.low[2], env.observation_space.high[2])
