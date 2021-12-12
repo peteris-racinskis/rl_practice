@@ -1,7 +1,7 @@
 from cartpole_Q import QSHAPE
 import tensorflow as tf
 import numpy as np
-from cartpole_clone import NUM_EPISODES, KerasModel, HIDDEN, ACTIONS, OUTFILE as INFILE, ENV
+from cartpole_clone import KerasModel, HIDDEN, ACTIONS, OUTFILE as INFILE, ENV
 
 def get_action(logits: tf.Tensor) -> int:
     return int(tf.argmax(tf.nn.softmax(logits[0])))

@@ -20,10 +20,10 @@ class KerasModel(Model):
 def read_model() -> np.ndarray:
     return np.fromfile(INFILE).reshape(QSHAPE + (ACTIONS,))
 
-def sample_expert(model: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def sample_expert(model: np.ndarray, episodes) -> Tuple[np.ndarray, np.ndarray]:
     discrete = Discretizer(LIMITS,model.shape)
     states, actions = [], []
-    for _ in range(NUM_EPISODES):
+    for _ in range(episodes):
         if _ % 50 == 0:
             print(f"expert episode {_}")
         done = False
@@ -35,7 +35,7 @@ def sample_expert(model: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
             actions.append(action)
             obs, __, done, ___ = ENV.step(action)
             #ENV.render()
-    return np.asarray(states), np.asarray(actions)
+    return np.asarray(states), np.asarray(actions, dtype=np.float64)
 
 def train_policy(states: np.ndarray, actions: np.ndarray) -> Model:
     t_states = tf.convert_to_tensor(states)
@@ -56,6 +56,6 @@ HIDDEN=256
 EAGER=False
 if __name__ == "__main__":
     expert = read_model()
-    states, actions = sample_expert(expert)
+    states, actions = sample_expert(expert, NUM_EPISODES)
     model = train_policy(states, actions)
     model.save_weights(OUTFILE)
