@@ -1,8 +1,8 @@
-from cartpole_clone import sample_expert, read_model, ENV, get_action, Discretizer, LIMITS
 import numpy as np
 import tensorflow as tf
 import gym
 from tensorflow.keras import Model, layers, optimizers, losses, activations
+from expert import QExpert
 
 class Policy(Model):
     
@@ -21,9 +21,8 @@ class Policy(Model):
         x = tf.expand_dims(tf.convert_to_tensor(obs),0)
         return int(tf.argmax(tf.nn.softmax(tf.squeeze(self.call(x)))))
 
-def train_policy(expert):
-    states, actions = sample_expert(expert, NUM_DEMONSTRATION)
-    disc = Discretizer(LIMITS, expert.shape)
+def train_policy(expert: QExpert):
+    states, actions = expert.sample(NUM_DEMONSTRATION)
     model = Policy(HIDDEN, ACTIONS)
     model.compile(
         optimizer=optimizers.Adam(),
@@ -43,7 +42,7 @@ def train_policy(expert):
                 action = model.action(obs)
                 obs, _, done, __ = ENV.step(action)
                 obs_j.append(obs)
-            actions_j = [get_action(expert,disc.map(x)) for x in obs_j]
+            actions_j = [expert.get_action(x) for x in obs_j]
             obs_i += obs_j
             actions_i += actions_j
         x1 = states.shape[0]
@@ -55,16 +54,17 @@ def train_policy(expert):
         model.fit(states,actions,epochs=TRAIN_EPOCHS)
     return model
 
-NUM_DEMONSTRATION=100
-NUM_EPISODES=50
-NUM_TRAINING_STEPS=20
+NUM_DEMONSTRATION=50
+NUM_EPISODES=30
+NUM_TRAINING_STEPS=100
 HIDDEN=512
 ACTIONS=2
 EAGER=False
 DEMO_EPOCHS=7
-TRAIN_EPOCHS=2
-OUTFILE="dagger"
+TRAIN_EPOCHS=1
+OUTFILE="dagger-updated"
+ENV=gym.make("CartPole-v1")
 if __name__ == "__main__":
-    expert = read_model()
+    expert = QExpert()
     model = train_policy(expert)
     model.save_weights(OUTFILE)
